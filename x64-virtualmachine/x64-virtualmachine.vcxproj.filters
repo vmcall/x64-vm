@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\vm">
+      <UniqueIdentifier>{e177d2bd-b174-42f7-b9b0-16ed0a35d2d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vm">
+      <UniqueIdentifier>{65f3eb1f-7ecf-48d2-8083-fc09f1582ffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x86">
+      <UniqueIdentifier>{d0d19ab7-f745-4dbd-b838-9251b00ad1ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x86">
+      <UniqueIdentifier>{c2a794f4-8180-4c07-80bf-fc538598e335}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vm\handlers">
+      <UniqueIdentifier>{8f510547-e72d-4a7c-9402-96f58a123496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vm\memory">
+      <UniqueIdentifier>{cbffe629-de2a-4930-adc0-e6cc23162392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vm\handlers\add">
+      <UniqueIdentifier>{9077b451-52c7-40ab-8e53-30afeea45eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vm\handlers">
+      <UniqueIdentifier>{215c799a-c44a-4150-9ca6-bc160bfb1fae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\vm\handlers\add">
+      <UniqueIdentifier>{09c92ea0-fb8d-491d-83eb-3b420db9c550}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction_opcode.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_machine.cpp">
+      <Filter>Source Files\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_stack.cpp">
+      <Filter>Source Files\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction_prefix.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="handler_add.cpp">
+      <Filter>Source Files\vm\handlers\add</Filter>
+    </ClCompile>
+    <ClCompile Include="handler_unknown.cpp">
+      <Filter>Source Files\vm\handlers</Filter>
+    </ClCompile>
+    <ClCompile Include="instruction_operand.cpp">
+      <Filter>Source Files\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_memory.cpp">
+      <Filter>Source Files\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="register.cpp">
+      <Filter>Source Files\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_section.cpp">
+      <Filter>Source Files\vm</Filter>
+    </ClCompile>
+    <ClCompile Include="handler_add_displaced_source.cpp">
+      <Filter>Source Files\vm\handlers\add</Filter>
+    </ClCompile>
+    <ClCompile Include="handler_add_displaced_destination.cpp">
+      <Filter>Source Files\vm\handlers\add</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="numerical_helper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_prefix.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_rex.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_operand.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_opcode.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="register.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_machine.hpp">
+      <Filter>Header Files\vm</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_stack.hpp">
+      <Filter>Header Files\vm</Filter>
+    </ClInclude>
+    <ClInclude Include="instruction_modrm.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm.hpp">
+      <Filter>Header Files\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="handlers.hpp">
+      <Filter>Header Files\vm\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="handler_unknown.hpp">
+      <Filter>Header Files\vm\handlers</Filter>
+    </ClInclude>
+    <ClInclude Include="compiler_helper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_memory.hpp">
+      <Filter>Header Files\vm\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_section.hpp">
+      <Filter>Header Files\vm\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="handler_add.hpp">
+      <Filter>Header Files\vm\handlers\add</Filter>
+    </ClInclude>
+    <ClInclude Include="handler_add_displaced_source.hpp">
+      <Filter>Header Files\vm\handlers\add</Filter>
+    </ClInclude>
+    <ClInclude Include="handler_add_displaced_destination.hpp">
+      <Filter>Header Files\vm\handlers\add</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
