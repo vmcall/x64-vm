@@ -6,73 +6,83 @@
 
 void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instruction& instr)
 {
-	// PARSE INSTRUCTION MODIFIER
-	const auto modifier = instr.get_modifier(0);
-
-	const auto source_name = x86::registr::names[modifier.source_register][x86::registr::size::qword].c_str();
-
+	std::uint64_t addition = 0;
+	std::uint64_t offset = 0;
 	bool deref = true;
-	auto addition = 0ull;
-	auto address_offset = 0ull;
 
-	// TODO, HANDLE REX PREFIX AND 66/67 OVERRIDE
-
+	// PARSE INSTRUCTION MODIFIER
+	auto modifier = instr.get_modifier(0);
 	switch (modifier.mode)
 	{
-		// ADD [REG], OPERAND
 	case 0:
-	{
-		const auto operand = instr.operand().get<std::uint32_t>(1);
-
-		printf("[Operation] ADD [%s], %lx\n", source_name, operand);
-
-		addition = operand;
-
+		// ADD DEST, [SRC]
+		vm::handler::add::impl::displaced_destination_zero(vm, modifier, instr, addition, deref);
 		break;
 
-	}
-	// ADD [REG+8-bit], OPERAND
 	case 1:
-	{
-		// REVERSE ORDER UNPACK FOR SOME REASON
-		const auto[operand, displacement] = instr.operand().get_multiple<std::uint8_t, std::uint32_t>(1);
-
-		printf("[Operation] ADD [%s+%x], %lx\n", source_name, displacement, operand);
-
-		address_offset = displacement;
-		addition = operand;
-
+		// ADD DEST, [SRC+8-bit]
+		vm::handler::add::impl::displaced_destination_one(vm, modifier, instr, addition, offset, deref);
 		break;
-	}
-	// ADD [REG+32-bit], OPERAND
+
 	case 2:
-	{
-		// REVERSE ORDER UNPACK FOR SOME REASON
-		const auto[operand, displacement] = instr.operand().get_multiple<std::uint32_t, std::uint32_t>(1);
-		printf("[Operation] ADD [%s+%lx], %lx\n", source_name, displacement, operand);
-
-		address_offset = displacement;
-		addition = operand;
+		// ADD DEST, [SRC+32-bit]
+		vm::handler::add::impl::displaced_destination_two(vm, modifier, instr, addition, offset, deref);
 		break;
-	}
-	// ADD REG, OPERAND
+
 	case 3:
-	{
-		const auto operand = instr.operand().get<std::uint32_t>(1);
-		printf("[Operation] ADD %s, %lx\n", source_name, operand);
-
-		deref = false;
-		addition = operand;
-
+		// ADD DEST, SRC
+		vm::handler::add::impl::displaced_destination_three(vm, modifier, instr, addition, deref);
 		break;
 	}
+
+	/*
+		PREFIX PSEUDO:
+
+		IF REX.W
+			IGNORE PREFIX-66
+
+			DESTINATION_REG = 64-bit
+
+			IF PREFIX67
+				SOURCE_REG = 32-bit
+			ELSE 
+				SOURCE-REG = 64-bit
+			
+
+		ELSE	
+			IGNORE PREFIX-67
+
+			IF PREFIX-66
+				DESTINATION_REG = 16-bit
+				SOURCE_REG = 16-bit
+			ELSE
+				DESTINATION_REG = 32-bit
+				SOURCE_REG = 32-bit
+	*/
+
+	if (modifier.wide)
+	{
+		
+	}
+	else
+	{
+		// PREFIX 66 OVERRIDES PREFIX 67
+		if (instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE))
+		{
+			// IF 66 IS SET, ADDITION WILL BE READ (BY THE HANDLERS) AS 16-bit
+
+		}
+		else // NO PREFIX, WRITE DWORD
+		{
+
+		}
 	}
 
 	// DEREF?
 	if (deref)
 	{
 		// UPDATE DEREF VALUE
-		auto address = vm->context().get(modifier.source_register).ptr + address_offset;
+		auto address = vm->context().get(modifier.source_register).ptr + offset;
 		auto value = vm->memory().read<std::uint64_t>(address) + addition;
 		vm->memory().write(value, address);
 	}
@@ -81,4 +91,93 @@ void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instructi
 		// UPDATE REGISTER VALUE
 		vm->context().get(modifier.source_register).qword += addition;
 	}
+}
+
+void vm::handler::add::impl::displaced_destination_zero(
+	virtual_machine* vm, 
+	x86::instruction::modifier_data_t& modifier, 
+	x86::instruction& instr, 
+	uint64_t& addition, bool& derefence)
+{
+	const auto operand = instr.operand().get<std::uint32_t>(1);
+
+	//printf("[Operation] ADD [%s], %lx\n", 
+	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
+	//	operand);
+
+	compiler::unreferenced_variable(vm);
+	compiler::unreferenced_variable(modifier);
+	compiler::unreferenced_variable(derefence);
+
+
+	addition = operand;
+}
+
+void vm::handler::add::impl::displaced_destination_one(
+	virtual_machine* vm, 
+	x86::instruction::modifier_data_t& modifier,
+	x86::instruction& instr, 
+	uint64_t& addition,
+	uint64_t& offset,
+	bool& derefence)
+{
+	// REVERSE ORDER UNPACK FOR SOME REASON
+	const auto[operand, displacement] = instr.operand().get_multiple<std::uint8_t, std::uint32_t>(1);
+
+	//printf("[Operation] ADD [%s+%x], %lx\n", 
+	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
+	//	displacement, 
+	//	operand);
+
+	compiler::unreferenced_variable(vm);
+	compiler::unreferenced_variable(modifier);
+	compiler::unreferenced_variable(derefence);
+
+	offset = displacement;
+	addition = operand;
+}
+
+void vm::handler::add::impl::displaced_destination_two(
+	virtual_machine* vm, 
+	x86::instruction::modifier_data_t& modifier, 
+	x86::instruction& instr, 
+	uint64_t& addition,
+	uint64_t& offset,
+	bool& derefence)
+{
+	// REVERSE ORDER UNPACK FOR SOME REASON
+	const auto[operand, displacement] = instr.operand().get_multiple<std::uint32_t, std::uint32_t>(1);
+
+	//printf("[Operation] ADD [%s+%lx], %lx\n", 
+	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
+	//	displacement, 
+	//	operand);
+
+	compiler::unreferenced_variable(vm);
+	compiler::unreferenced_variable(modifier);
+	compiler::unreferenced_variable(derefence);
+
+	offset = displacement;
+	addition = operand;
+}
+
+void vm::handler::add::impl::displaced_destination_three(
+	virtual_machine* 
+	vm, x86::instruction::modifier_data_t& modifier, 
+	x86::instruction& instr, 
+	uint64_t& addition, 
+	bool& derefence)
+{
+	const auto operand = instr.operand().get<std::uint32_t>(1);
+
+	//printf("[Operation] ADD %s, %lx\n", 
+	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
+	//	operand);
+
+	compiler::unreferenced_variable(vm);
+	compiler::unreferenced_variable(modifier);
+	compiler::unreferenced_variable(derefence);
+
+	derefence = false;
+	addition = operand;
 }

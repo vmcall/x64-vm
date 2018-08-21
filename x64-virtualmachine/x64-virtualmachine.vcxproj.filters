@@ -87,6 +87,9 @@
     <ClCompile Include="handler_add_displaced_destination.cpp">
       <Filter>Source Files\vm\handlers\add</Filter>
     </ClCompile>
+    <ClCompile Include="handler_add_byte.cpp">
+      <Filter>Source Files\vm\handlers\add</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="numerical_helper.hpp">
@@ -144,6 +147,9 @@
       <Filter>Header Files\vm\handlers\add</Filter>
     </ClInclude>
     <ClInclude Include="handler_add_displaced_destination.hpp">
+      <Filter>Header Files\vm\handlers\add</Filter>
+    </ClInclude>
+    <ClInclude Include="handler_add_byte.hpp">
       <Filter>Header Files\vm\handlers\add</Filter>
     </ClInclude>
   </ItemGroup>
