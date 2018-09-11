@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <algorithm>
+#include <type_traits>
 
 // VM
 #include "virtual_section.hpp"
@@ -166,6 +167,7 @@ namespace vm
 				{
 					const auto page_index = vm::virtual_memory::get_page_index(address, section->base());
 					const auto page_offset = vm::virtual_memory::get_page_offset(address);
+
 					*reinterpret_cast<T*>(section->get(page_index) + page_offset) = value;
 				}
 				else

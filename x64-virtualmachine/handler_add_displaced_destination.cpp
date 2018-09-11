@@ -1,8 +1,10 @@
 // VM
 #include "handler_add_displaced_destination.hpp"
+#include "handler_add.hpp"
 
 // HELPER
 #include "compiler_helper.hpp"
+#include "numerical_helper.hpp"
 
 void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instruction& instr)
 {
@@ -15,17 +17,17 @@ void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instructi
 	switch (modifier.mode)
 	{
 	case 0:
-		// ADD DEST, [SRC]
+		// ADD [DEST], SRC
 		vm::handler::add::impl::displaced_destination_zero(vm, modifier, instr, addition, deref);
 		break;
 
 	case 1:
-		// ADD DEST, [SRC+8-bit]
+		// ADD [DEST+8-bit], SRC
 		vm::handler::add::impl::displaced_destination_one(vm, modifier, instr, addition, offset, deref);
 		break;
 
 	case 2:
-		// ADD DEST, [SRC+32-bit]
+		// ADD [DEST+32-bit], SRC
 		vm::handler::add::impl::displaced_destination_two(vm, modifier, instr, addition, offset, deref);
 		break;
 
@@ -35,61 +37,122 @@ void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instructi
 		break;
 	}
 
-	/*
-		PREFIX PSEUDO:
+	// GET DESTINATION SIZE
+	auto size = x86::registr::size::qword;
 
-		IF REX.W
-			IGNORE PREFIX-66
-
-			DESTINATION_REG = 64-bit
-
-			IF PREFIX67
-				SOURCE_REG = 32-bit
-			ELSE 
-				SOURCE-REG = 64-bit
-			
-
-		ELSE	
-			IGNORE PREFIX-67
-
-			IF PREFIX-66
-				DESTINATION_REG = 16-bit
-				SOURCE_REG = 16-bit
-			ELSE
-				DESTINATION_REG = 32-bit
-				SOURCE_REG = 32-bit
-	*/
-
-	if (modifier.wide)
+	// 32-bit?
+	if (!instr.get_modifier(0).wide)
 	{
-		
-	}
-	else
-	{
-		// PREFIX 66 OVERRIDES PREFIX 67
-		if (instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE))
-		{
-			// IF 66 IS SET, ADDITION WILL BE READ (BY THE HANDLERS) AS 16-bit
-
-		}
-		else // NO PREFIX, WRITE DWORD
-		{
-
-		}
+		// 16-bit OVERRIDE?
+		size = instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE) ?
+			x86::registr::size::word :
+			x86::registr::size::dword;
 	}
 
 	// DEREF?
-	if (deref)
+	auto& source_reg = vm->context().get(modifier.source_register);
+	if (deref) // DEREFERENCE RESULT?
 	{
-		// UPDATE DEREF VALUE
-		auto address = vm->context().get(modifier.source_register).ptr + offset;
-		auto value = vm->memory().read<std::uint64_t>(address) + addition;
-		vm->memory().write(value, address);
+		// UPDATE DEREF'D VALUE
+		auto address = source_reg.ptr + offset;
+
+		switch (size)
+		{
+		case x86::registr::size::word:
+		{
+			const auto previous_value = vm->memory().read<std::uint16_t>(address);
+			const auto casted_addition = static_cast<std::uint16_t>(addition);
+			std::uint16_t value = previous_value + casted_addition;
+			vm->memory().write(value, address);
+
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm, value, previous_value, casted_addition);
+
+			break;
+		}
+			
+
+		case x86::registr::size::dword:
+		{
+			// SAVE OLD VALUE AND CALCULATE NEW
+			const auto previous_value = vm->memory().read<std::uint32_t>(address);
+			const auto casted_addition = static_cast<std::uint32_t>(addition);
+			std::uint32_t value = previous_value + casted_addition;
+
+			// WRITE
+			vm->memory().write(value, address);
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm, value, previous_value, casted_addition);
+
+			break;
+		}
+
+
+		case x86::registr::size::qword:
+		{
+			// SAVE OLD VALUE AND CALCULATE NEW
+			const auto previous_value = vm->memory().read<std::uint64_t>(address);
+			auto value = previous_value + addition;
+
+			// WRITE
+			vm->memory().write(value, address);
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm, value, previous_value, addition);
+			break;
+		}
+		}
+
 	}
 	else
 	{
 		// UPDATE REGISTER VALUE
-		vm->context().get(modifier.source_register).qword += addition;
+		switch (size)
+		{
+		case x86::registr::size::word:
+		{
+			const auto casted_addition = static_cast<std::uint16_t>(addition);
+			const auto previous_value = source_reg.word;
+			source_reg.word += casted_addition;
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm,
+				source_reg.word,
+				previous_value,
+				casted_addition);
+
+			break;
+		}
+
+		case x86::registr::size::dword:
+		{
+			const auto casted_addition = static_cast<std::uint32_t>(addition);
+			const auto previous_value = source_reg.dword;
+			source_reg.dword += static_cast<std::uint32_t>(addition);
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm,
+				source_reg.dword,
+				previous_value,
+				casted_addition);
+			break;
+		}
+
+		case x86::registr::size::qword:
+		{
+			const auto previous_value = source_reg.qword;
+			source_reg.qword += addition;
+
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(vm,
+				source_reg.qword,
+				previous_value,
+				addition);
+			break;
+		}
+		}
 	}
 }
 
@@ -101,9 +164,21 @@ void vm::handler::add::impl::displaced_destination_zero(
 {
 	const auto operand = instr.operand().get<std::uint32_t>(1);
 
-	//printf("[Operation] ADD [%s], %lx\n", 
-	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
-	//	operand);
+	// GET DESTINATION SIZE
+	auto size = x86::registr::size::qword;
+
+	// 32-bit?
+	if (!instr.get_modifier(0).wide)
+	{
+		// 16-bit OVERRIDE?
+		size = instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE) ?
+			x86::registr::size::word :
+			x86::registr::size::dword;
+	}
+
+	printf("[Operation] ADD [%s], %lx\n", 
+		x86::registr::names[modifier.source_register][size].c_str(),
+		operand);
 
 	compiler::unreferenced_variable(vm);
 	compiler::unreferenced_variable(modifier);
@@ -148,10 +223,22 @@ void vm::handler::add::impl::displaced_destination_two(
 	// REVERSE ORDER UNPACK FOR SOME REASON
 	const auto[operand, displacement] = instr.operand().get_multiple<std::uint32_t, std::uint32_t>(1);
 
-	//printf("[Operation] ADD [%s+%lx], %lx\n", 
-	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
-	//	displacement, 
-	//	operand);
+	// GET DESTINATION SIZE
+	auto size = x86::registr::size::qword;
+
+	// 32-bit?
+	if (!instr.get_modifier(0).wide)
+	{
+		// 16-bit OVERRIDE?
+		size = instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE) ?
+			x86::registr::size::word :
+			x86::registr::size::dword;
+	}
+
+	printf("[Operation] ADD [%s+%lx], %lx\n", 
+		x86::registr::names[modifier.source_register][size].c_str(), 
+		displacement, 
+		operand);
 
 	compiler::unreferenced_variable(vm);
 	compiler::unreferenced_variable(modifier);
@@ -170,9 +257,21 @@ void vm::handler::add::impl::displaced_destination_three(
 {
 	const auto operand = instr.operand().get<std::uint32_t>(1);
 
-	//printf("[Operation] ADD %s, %lx\n", 
-	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
-	//	operand);
+	// GET DESTINATION SIZE
+	auto size = x86::registr::size::qword;
+
+	// 32-bit?
+	if (!instr.get_modifier(0).wide)
+	{
+		// 16-bit OVERRIDE?
+		size = instr.prefix().has(x86::prefix::OPERAND_SIZE_OVERRIDE) ?
+			x86::registr::size::word :
+			x86::registr::size::dword;
+	}
+
+	printf("[Operation] ADD %s, %lx\n", 
+		x86::registr::names[modifier.source_register][size].c_str(),
+		operand);
 
 	compiler::unreferenced_variable(vm);
 	compiler::unreferenced_variable(modifier);

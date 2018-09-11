@@ -1,10 +1,9 @@
 // VM
 #include "handler_add_displaced_source.hpp"
+#include "handler_add.hpp"
 
-// COMPILER HELPER
+// HELPER
 #include "compiler_helper.hpp"
-
-// NUMERICAL HELPER
 #include "numerical_helper.hpp"
 
 void vm::handler::add::impl::displaced_source_zero(
@@ -268,23 +267,12 @@ void vm::handler::add::displaced_source(virtual_machine* vm, x86::instruction& i
 		// IF 67 IS SET, ADDITION WILL BE READ (BY THE HANDLERS) AS 32-bit
 		destination_reg.qword += addition;
 
-		// ZERO FLAG
-		vm->context().flags().zero = destination_reg.qword == 0x0000000000000000;
-
-		// OVERFLOW
-		vm->context().flags().overflow =
-			numerical_helper::addition_overflows(destination_reg.qword, addition);
-
-		// CARRY
-		vm->context().flags().carry = 
-			numerical_helper::is_signed(destination_reg.qword) != numerical_helper::is_signed(previous_value);
-
-		// SIGN
-		vm->context().flags().sign = numerical_helper::is_signed(destination_reg.qword) ? 1 : 0;
-
-		// PARITY
-		const auto set_bit_count = numerical_helper::least_significant_bits(destination_reg.qword);
-		vm->context().flags().parity = set_bit_count % 2 == 0; // EVEN NUMBER OF SET BITS
+		// SET FLAGS
+		vm::handler::add::impl::handle_flags(
+			vm, 
+			destination_reg.qword, 
+			previous_value, 
+			addition);
 	}
 	else
 	{
@@ -300,23 +288,12 @@ void vm::handler::add::displaced_source(virtual_machine* vm, x86::instruction& i
 			const auto casted_addition = static_cast<std::uint16_t>(addition);
 			destination_reg.word += casted_addition;
 
-			// ZERO FLAG
-			vm->context().flags().zero = destination_reg.word == 0x0000;
-
-			// OVERFLOW
-			vm->context().flags().overflow =
-				numerical_helper::addition_overflows(destination_reg.word, casted_addition);
-
-			// CARRY
-			vm->context().flags().carry = 
-				numerical_helper::is_signed(destination_reg.word) != numerical_helper::is_signed(previous_value);
-
-			// SIGN
-			vm->context().flags().sign = numerical_helper::is_signed(destination_reg.word) ? 1 : 0;
-
-			// PARITY
-			const auto set_bit_count = numerical_helper::least_significant_bits(destination_reg.word);
-			vm->context().flags().parity = set_bit_count % 2 == 0; // EVEN NUMBER OF SET BITS
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(
+				vm,
+				destination_reg.word,
+				previous_value,
+				casted_addition);
 
 		}
 		else // NO PREFIX, WRITE DWORD
@@ -328,22 +305,12 @@ void vm::handler::add::displaced_source(virtual_machine* vm, x86::instruction& i
 			const auto casted_addition = static_cast<std::uint32_t>(addition);
 			destination_reg.dword += casted_addition;
 
-			// ZERO FLAG
-			vm->context().flags().zero = destination_reg.dword == 0x00000000;
-
-			// OVERFLOW
-			vm->context().flags().overflow = 
-				numerical_helper::addition_overflows(destination_reg.dword, casted_addition);
-
-			// CARRY
-			vm->context().flags().carry = numerical_helper::is_signed(destination_reg.dword) != numerical_helper::is_signed(previous_value);
-
-			// SIGN
-			vm->context().flags().sign = numerical_helper::is_signed(destination_reg.dword) ? 1 : 0;
-
-			// PARITY
-			const auto set_bit_count = numerical_helper::least_significant_bits(destination_reg.dword);
-			vm->context().flags().parity = set_bit_count % 2 == 0; // EVEN NUMBER OF SET BITS
+			// SET FLAGS
+			vm::handler::add::impl::handle_flags(
+				vm,
+				destination_reg.dword,
+				previous_value,
+				casted_addition);
 		}
 	}
 }
