@@ -3,6 +3,6 @@ x86-64 virtual machine and disassembler, it's unfinished and only handles a few 
 
 # Features
 
-Virtual stack
-Virtual memory (Virtual pages, handles pagefault)
-Virtual registers
++ Virtual stack
++ Virtual memory (Virtual pages, handles pagefault)
++ Virtual registers
