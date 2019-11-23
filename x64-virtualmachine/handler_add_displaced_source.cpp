@@ -5,6 +5,7 @@
 // HELPER
 #include "compiler_helper.hpp"
 #include "numerical_helper.hpp"
+#include "global.hpp"
 
 void vm::handler::add::impl::displaced_source_zero(
 	virtual_machine* vm,
@@ -48,9 +49,13 @@ void vm::handler::add::impl::displaced_source_zero(
 	}
 
 	// PRINT OPERATION
-	printf("[Operation] ADD %s, [%s]\n",
-		x86::registr::names[modifier.destination_register][dest_size].c_str(),
-		x86::registr::names[modifier.source_register][source_size].c_str());
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[dest_size].c_str();
+
+	const auto source_reg_name_container = x86::registr::names[modifier.source_register];
+	const auto source_reg_name = source_reg_name_container[source_size].c_str();
+
+	global::console.log_raw("[O]  ADD %s, [%s]", dest_reg_name, source_reg_name);
 }
 
 void vm::handler::add::impl::displaced_source_one(virtual_machine* vm,
@@ -96,10 +101,13 @@ void vm::handler::add::impl::displaced_source_one(virtual_machine* vm,
 	}
 
 	// PRINT OPERATION
-	printf("[Operation] ADD %s, [%s+%02X]\n",
-		x86::registr::names[modifier.destination_register][dest_size].c_str(),
-		x86::registr::names[modifier.source_register][source_size].c_str(),
-		displacement);
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[dest_size].c_str();
+
+	const auto source_reg_name_container = x86::registr::names[modifier.source_register];
+	const auto source_reg_name = source_reg_name_container[source_size].c_str();
+
+	global::console.log_raw("[O]  ADD %s, [%s+%02X]\n", dest_reg_name, source_reg_name, displacement);
 }
 
 void vm::handler::add::impl::displaced_source_two(
@@ -146,11 +154,14 @@ void vm::handler::add::impl::displaced_source_two(
 	}
 
 	// PRINT OPERATION
-	printf("[Operation] ADD %s, [%s+%08lX]\n",
-		x86::registr::names[modifier.destination_register][dest_size].c_str(),
-		x86::registr::names[modifier.source_register][source_size].c_str(),
-		displacement);
 
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[dest_size].c_str();
+
+	const auto source_reg_name_container = x86::registr::names[modifier.source_register];
+	const auto source_reg_name = source_reg_name_container[source_size].c_str();
+
+	global::console.log_raw("[O] ADD %s, [%s+%08lX]\n", dest_reg_name, source_reg_name, displacement);
 }
 
 void vm::handler::add::impl::displaced_source_three(
@@ -195,9 +206,14 @@ void vm::handler::add::impl::displaced_source_three(
 	}
 
 	// PRINT OPERATION
-	printf("[Operation] ADD %s, %s\n",
-		x86::registr::names[modifier.destination_register][dest_size].c_str(),
-		x86::registr::names[modifier.source_register][source_size].c_str());
+
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[dest_size].c_str();
+
+	const auto source_reg_name_container = x86::registr::names[modifier.source_register];
+	const auto source_reg_name = source_reg_name_container[source_size].c_str();
+
+	global::console.log_raw("[O] ADD %s, %s\n", dest_reg_name, source_reg_name);
 }
 
 void vm::handler::add::displaced_source(virtual_machine* vm, x86::instruction& instr)

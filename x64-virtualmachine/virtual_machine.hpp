@@ -53,7 +53,7 @@ public:
 			catch (std::exception exception)
 			{
 				// HANDLE EXCEPTIONS
-				printf("Exception: %s\n", exception.what());
+				global::console.log_error_indented<1>(exception.what());
 			}
 		
 

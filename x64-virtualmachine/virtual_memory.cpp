@@ -29,7 +29,6 @@ bool vm::virtual_memory::allocate(std::uint8_t* address, size_t size)
 	}
 	else
 	{
-
 		auto bytes_left = size;
 		auto page_index = 0;
 		auto page_address = address;

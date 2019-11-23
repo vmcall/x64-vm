@@ -40,6 +40,15 @@
     <Filter Include="Source Files\vm\handlers\add">
       <UniqueIdentifier>{09c92ea0-fb8d-491d-83eb-3b420db9c550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\logger">
+      <UniqueIdentifier>{869ab47c-e14c-405a-8fe1-a4031ca9751f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vm_tester">
+      <UniqueIdentifier>{6279c470-1834-446c-b3d6-b634a0b2962d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fmt">
+      <UniqueIdentifier>{3ade731a-ea9a-4c6a-9d63-dff06fe22031}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry.cpp">
@@ -89,6 +98,15 @@
     </ClCompile>
     <ClCompile Include="handler_add_byte.cpp">
       <Filter>Source Files\vm\handlers\add</Filter>
+    </ClCompile>
+    <ClCompile Include="global.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fmt\format.cc">
+      <Filter>Source Files\fmt</Filter>
+    </ClCompile>
+    <ClCompile Include="fmt\posix.cc">
+      <Filter>Source Files\fmt</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +169,18 @@
     </ClInclude>
     <ClInclude Include="handler_add_byte.hpp">
       <Filter>Header Files\vm\handlers\add</Filter>
+    </ClInclude>
+    <ClInclude Include="loggr.hpp">
+      <Filter>Header Files\logger</Filter>
+    </ClInclude>
+    <ClInclude Include="spinner.hpp">
+      <Filter>Header Files\logger</Filter>
+    </ClInclude>
+    <ClInclude Include="global.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vm_test.hpp">
+      <Filter>Header Files\vm_tester</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

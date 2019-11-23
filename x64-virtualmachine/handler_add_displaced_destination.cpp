@@ -6,6 +6,8 @@
 #include "compiler_helper.hpp"
 #include "numerical_helper.hpp"
 
+#include "global.hpp"
+
 void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instruction& instr)
 {
 	std::uint64_t addition = 0;
@@ -157,10 +159,11 @@ void vm::handler::add::displaced_destination(virtual_machine* vm, x86::instructi
 }
 
 void vm::handler::add::impl::displaced_destination_zero(
-	virtual_machine* vm, 
-	x86::instruction::modifier_data_t& modifier, 
+	virtual_machine* vm [[maybe_unused]], 
+	x86::instruction::modifier_data_t& modifier [[maybe_unused]],
 	x86::instruction& instr, 
-	uint64_t& addition, bool& derefence)
+	uint64_t& addition, 
+	bool& derefence [[maybe_unused]])
 {
 	const auto operand = instr.operand().get<std::uint32_t>(1);
 
@@ -176,49 +179,37 @@ void vm::handler::add::impl::displaced_destination_zero(
 			x86::registr::size::dword;
 	}
 
-	printf("[Operation] ADD [%s], %lx\n", 
-		x86::registr::names[modifier.source_register][size].c_str(),
-		operand);
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[size].c_str();
 
-	compiler::unreferenced_variable(vm);
-	compiler::unreferenced_variable(modifier);
-	compiler::unreferenced_variable(derefence);
-
+	global::console.log_raw("[O]   ADD [{}], {}\n", dest_reg_name, operand);
 
 	addition = operand;
 }
 
 void vm::handler::add::impl::displaced_destination_one(
-	virtual_machine* vm, 
-	x86::instruction::modifier_data_t& modifier,
+	virtual_machine* vm [[maybe_unused]],
+	x86::instruction::modifier_data_t& modifier [[maybe_unused]],
 	x86::instruction& instr, 
 	uint64_t& addition,
 	uint64_t& offset,
-	bool& derefence)
+	bool& derefence [[maybe_unused]])
 {
 	// REVERSE ORDER UNPACK FOR SOME REASON
 	const auto[operand, displacement] = instr.operand().get_multiple<std::uint8_t, std::uint32_t>(1);
 
-	//printf("[Operation] ADD [%s+%x], %lx\n", 
-	//	x86::registr::names[modifier.source_register][source_size].c_str(), 
-	//	displacement, 
-	//	operand);
-
-	compiler::unreferenced_variable(vm);
-	compiler::unreferenced_variable(modifier);
-	compiler::unreferenced_variable(derefence);
 
 	offset = displacement;
 	addition = operand;
 }
 
 void vm::handler::add::impl::displaced_destination_two(
-	virtual_machine* vm, 
+	virtual_machine* vm[[maybe_unused]],
 	x86::instruction::modifier_data_t& modifier, 
 	x86::instruction& instr, 
 	uint64_t& addition,
 	uint64_t& offset,
-	bool& derefence)
+	bool& derefence[[maybe_unused]])
 {
 	// REVERSE ORDER UNPACK FOR SOME REASON
 	const auto[operand, displacement] = instr.operand().get_multiple<std::uint32_t, std::uint32_t>(1);
@@ -235,22 +226,19 @@ void vm::handler::add::impl::displaced_destination_two(
 			x86::registr::size::dword;
 	}
 
-	printf("[Operation] ADD [%s+%lx], %lx\n", 
-		x86::registr::names[modifier.source_register][size].c_str(), 
-		displacement, 
-		operand);
 
-	compiler::unreferenced_variable(vm);
-	compiler::unreferenced_variable(modifier);
-	compiler::unreferenced_variable(derefence);
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[size].c_str();
+
+	global::console.log_raw("[O]   ADD [{}+{:X}], {:X}\n", dest_reg_name, displacement, operand);
 
 	offset = displacement;
 	addition = operand;
 }
 
 void vm::handler::add::impl::displaced_destination_three(
-	virtual_machine* 
-	vm, x86::instruction::modifier_data_t& modifier, 
+	virtual_machine* vm[[maybe_unused]],
+	x86::instruction::modifier_data_t& modifier, 
 	x86::instruction& instr, 
 	uint64_t& addition, 
 	bool& derefence)
@@ -269,13 +257,10 @@ void vm::handler::add::impl::displaced_destination_three(
 			x86::registr::size::dword;
 	}
 
-	printf("[Operation] ADD %s, %lx\n", 
-		x86::registr::names[modifier.source_register][size].c_str(),
-		operand);
+	const auto dest_reg_name_container = x86::registr::names[modifier.destination_register];
+	const auto dest_reg_name = dest_reg_name_container[size].c_str();
 
-	compiler::unreferenced_variable(vm);
-	compiler::unreferenced_variable(modifier);
-	compiler::unreferenced_variable(derefence);
+	global::console.log_raw("[O]   ADD {}, {:X}\n", dest_reg_name, operand);
 
 	derefence = false;
 	addition = operand;

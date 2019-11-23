@@ -43,6 +43,4 @@ void virtual_machine::handle_instruction(x86::instruction& instr)
 	default:
 		vm::handler::unknown(instr);
 	}
-
-	printf("\n");
 }
